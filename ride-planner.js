@@ -7,10 +7,9 @@ document.getElementById('rider').addEventListener('click', function(e) {
     const feet = document.getElementById('feet').value;
     const inches = document.getElementById('inches').value;
     const weight = document.getElementById('weight').value;
-    const fitnessLevel = Array.from(document.getElementById('fitnessLevel').selectedOptions).map(option => option.value);
+    const fitnessLevel = document.getElementById('fitnessLevel').value;
     
     const height = (parseInt(inches) / 12) + parseInt(feet);
-    console.log(height);
 
     
     const riderData = {
@@ -22,7 +21,6 @@ document.getElementById('rider').addEventListener('click', function(e) {
         fitnessLevel: fitnessLevel
     };
 
-    // Save the object to localStorage
     localStorage.setItem('riderData', JSON.stringify(riderData));
 });
 
@@ -40,17 +38,8 @@ function initMap(start, end) {
     const directionsService = new google.maps.DirectionsService();
     const directionsRenderer = new google.maps.DirectionsRenderer({
       map,
-      panel: document.getElementById("panel"),
     });
-
-  
-    directionsRenderer.addListener("directions_changed", () => {
-      const directions = directionsRenderer.getDirections();
-  
-      if (directions) {
-        computeTotalDistance(directions);
-      }
-    });
+    
     
     displayRoute(
       start,
@@ -70,6 +59,8 @@ function initMap(start, end) {
       })
       .then((result) => {
         display.setDirections(result);
+        computeTotalDistance(result);
+        computeTotalTime(result);
       })
       .catch((e) => {
         alert("Could not display directions due to: " + e);
@@ -88,8 +79,43 @@ function initMap(start, end) {
       total += myroute.legs[i].distance.value;
     }
   
-    total = total / 5280;
-    // document.getElementById("total").innerHTML = total + " mi";
+    total = total * 0.000621371;
+    document.getElementById("total").innerHTML = total + " mi";
+  }
+
+  function computeTotalTime(result) {
+    let total = 0;
+    const myroute = result.routes[0];
+    const riderFitnessLevel = JSON.parse(localStorage.getItem('riderData'));
+    console.log(riderFitnessLevel.fitnessLevel);
+    if (!myroute) {
+      return;
+    }
+  
+    for (let i = 0; i < myroute.legs.length; i++) {
+      total += myroute.legs[i].duration.value;
+    }
+  
+    total = total / 60 / 60;
+    if ((riderFitnessLevel.fitnessLevel) == "beginner"){
+        total = 1.2 * total;
+        document.getElementById("duration").innerHTML = total + " hours";
+
+    }
+    else if ((riderFitnessLevel.fitnessLevel) == "advanced"){
+        total = .9 * total;
+        document.getElementById("duration").innerHTML = total + " hours";
+
+    }
+    else if ((riderFitnessLevel.fitnessLevel) == "elite"){
+        total = .5 * total;
+        document.getElementById("duration").innerHTML = total + " hours";
+
+    }
+    else {
+        document.getElementById("duration").innerHTML = total + " hours";
+
+    }
   }
   
 

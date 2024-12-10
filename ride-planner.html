@@ -6,110 +6,119 @@
     <title>Document</title>
 </head>
 <body>
-
+    <div>
     <h1>Ride Planner</h1>
-    <h2>My Info</h2>
-    <div>
-        <label for="name">Name</label>
-        <input
-            id="name"
-            class="form-control validate-input"
-            type="text"
-            name="name"
-          />
-    </div>
-    <div>
-        <label for="pic">Picture</label>
-        <input
-            id="pic"
-            class="form-control validate-input"
-            type="file"
-            name="pic"
-          />
-        <span>.img</span>
-    </div>
-    <div>
-        <label for="age">Age</label>
-        <input
-                id="age"
+        <h2>My Info</h2>
+        <div>
+            <label for="name">Name</label>
+            <input
+                id="name"
                 class="form-control validate-input"
-                type="number"
-                name="age"
-                min="10"
-                max="100"
-                step="1"
+                type="text"
+                name="name"
             />
-        <span>years</span>
-    </div>
-    <div>
-        <label for="weight">Weight</label>
-        <input
-                id="weight"
+        </div>
+        <div>
+            <label for="pic">Picture</label>
+            <input
+                id="pic"
                 class="form-control validate-input"
-                type="number"
-                name="weight"
-                min="30"
-                max="200"
-                step="1"
+                type="file"
+                name="pic"
             />
-        <span>lbs</span>
+            <span>.img</span>
+        </div>
+        <div>
+            <label for="age">Age</label>
+            <input
+                    id="age"
+                    class="form-control validate-input"
+                    type="number"
+                    name="age"
+                    min="10"
+                    max="100"
+                    step="1"
+                />
+            <span>years</span>
+        </div>
+        <div>
+            <label for="weight">Weight</label>
+            <input
+                    id="weight"
+                    class="form-control validate-input"
+                    type="number"
+                    name="weight"
+                    min="30"
+                    max="200"
+                    step="1"
+                />
+            <span>lbs</span>
+        </div>
+        <div>
+            <label for="height">Height</label>
+            <input
+                    id="feet"
+                    class="form-control validate-input"
+                    type="number"
+                    name="feet"
+                    min="4"
+                    max="7"
+                    step="1"
+                />
+            <span>ft</span>
+            <input
+                    id="inches"
+                    class="form-control validate-input"
+                    type="number"
+                    name="inches"
+                    min="0"
+                    max="11"
+                    step="1"
+                />
+            <span>in</span>
+        </div>
+        <div>
+            <label for="fitnessLevel">Fitness Level</label>
+            <select id="fitnessLevel" name="fitnessLevel" single>
+                <option value="beginner">Beginner</option>
+                <option value="intermediate">Intermediate</option>
+                <option value="advanced">Advanced</option>
+                <option value="elite">Elite</option>
+            </select>
+        </div>
+        <button id="rider">Submit</button>
     </div>
-    <div>
-        <label for="height">Height</label>
-        <input
-                id="feet"
-                class="form-control validate-input"
-                type="number"
-                name="feet"
-                min="4"
-                max="7"
-                step="1"
-            />
-        <span>ft</span>
-        <input
-                id="inches"
-                class="form-control validate-input"
-                type="number"
-                name="inches"
-                min="0"
-                max="11"
-                step="1"
-            />
-        <span>in</span>
-    </div>
-    <div>
-        <label for="fitnessLevel">Fitness Level</label>
-        <select id="fitnessLevel" name="fitnessLevel" single>
-            <option value="beginner">Beginner</option>
-            <option value="intermediate">Intermediate</option>
-            <option value="advanced">Advanced</option>
-            <option value="elite">Elite</option>
-        </select>
-    </div>
-    <button>Submit</button>
-
 <div style="height: 1px; background-color: gray;"></div>
 <h2>My Ride</h2>
     <div>
-        <label for="route">Route</label>
+        <label for="start">Start</label>
         <input
-            id="route"
+            id="start"
             class="form-control validate-input"
-            type="file"
-            name="route"
-            accept=".gpx"
+            type="text"
+            name="start"
         />
-          <span>.gpx</span>
+          <span>city, state</span>
     </div>
     <div>
-        <label for="date">Date</label>
-        <input 
-            id="date"
-            class="form-control validate-input"    
-            type="date"
+        <label for="end">End</label>
+        <input
+            id="end"
+            class="form-control validate-input"
+            type="text"
+            name="end"
         />
+          <span>city, state</span>
     </div>
-    <button>Submit</button>
+   
+    <button id="route">Submit</button>
+
+    <div id="map" style="height: 400px;"></div>
+    <h3 id="total"></h3>
+      <script
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg&v=weekly"
+      defer
+    ></script>
     <script src="ride-planner.js"></script>
 </body>
 </html>

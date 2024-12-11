@@ -1,6 +1,31 @@
 const profileSetup = document.getElementById("profileSetup");
 const scrim = document.getElementById("scrim");
 
+window.addEventListener("load", function () {
+  if (localStorage.getItem('riderData')) {
+    const profile = document.getElementById("profile");
+    profile.innerHTML = `
+      <h3>My Profile</h3>
+      <p>Name: ${JSON.parse(localStorage.getItem('riderData')).name}</p>
+      <p>Age: ${JSON.parse(localStorage.getItem('riderData')).age}</p>
+      <p>Height: ${JSON.parse(localStorage.getItem('riderData')).height}</p>
+      <p>Weight: ${JSON.parse(localStorage.getItem('riderData')).weight}</p>
+      <p>Fitness Level: ${JSON.parse(localStorage.getItem('riderData')).fitnessLevel}</p>
+      <button id="edit">Edit Details</button>
+    `;
+    document.getElementById('edit').addEventListener('click', function(e) {
+      e.preventDefault();
+      profileSetup.classList.toggle("hidden");
+      scrim.classList.toggle("hidden");
+    });
+  }
+  else {
+    profileSetup.classList.toggle("hidden");
+    scrim.classList.toggle("hidden");
+  }
+});
+
+  
 document.getElementById('rider').addEventListener('click', function(e) {
     e.preventDefault();
 
@@ -195,8 +220,8 @@ function initMap(start, end) {
     const estimatesElement = document.getElementById("estimates");
     estimatesElement.innerHTML = `
       <h3>Estimated Totals</h3>
-      <p>Distance: ${distance} miles</p>
-      <p>Duration: ${adjustedDuration} hours</p>
+      <p>Distance: ${distance.toFixed(2)} miles</p>
+      <p>Duration: ${adjustedDuration.toFixed(2)} hours based on your fitness multiplier of ${fitnessFactor.toFixed(2)}</p>
     `;
  
   }

@@ -1,18 +1,20 @@
+const profileSetup = document.getElementById("profileSetup");
+const scrim = document.getElementById("scrim");
+
 document.getElementById('rider').addEventListener('click', function(e) {
     e.preventDefault();
 
     const name = document.getElementById('name').value;
-    const age = document.getElementById('age').value;
+    const age = parseInt(document.getElementById('age').value);
     const feet = document.getElementById('feet').value;
     const inches = document.getElementById('inches').value;
-    const weight = document.getElementById('weight').value;
+    const weight = parseInt(document.getElementById('weight').value);
     const fitnessLevel = document.getElementById('fitnessLevel').value;
     
-    const height = (parseInt(inches) / 12) + parseInt(feet);
+    const height = parseInt(inches) + (parseInt(feet)*12);
 
     const riderData = {
         name: name,
-        pic: pic,
         age: age,
         height: height,
         weight: weight,
@@ -20,7 +22,31 @@ document.getElementById('rider').addEventListener('click', function(e) {
     };
 
     localStorage.setItem('riderData', JSON.stringify(riderData));
+
+    const profile = document.getElementById("profile");
+    profile.innerHTML = `
+      <h3>My Profile</h3>
+      <p>Name: ${riderData.name}</p>
+      <p>Age: ${riderData.age}</p>
+      <p>Height: ${riderData.height}</p>
+      <p>Weight: ${riderData.weight}</p>
+      <p>Fitness Level: ${riderData.fitnessLevel}</p>
+      <button id="edit">Edit Details</button>
+    `;
+
+    
+    profileSetup.classList.toggle("hidden");
+    scrim.classList.toggle("hidden");
+
+    document.getElementById('edit').addEventListener('click', function(e) {
+      e.preventDefault();
+      profileSetup.classList.toggle("hidden");
+      scrim.classList.toggle("hidden");
+    });
+
 });
+
+
 
 const WEATHER_API_KEY = "a008ca2308f1daa4dcacddfcfcc35fdb";
 
@@ -94,7 +120,6 @@ function initMap(start, end) {
         const originLat = result.routes[0].legs[0].start_location.lat();
         const originLng = result.routes[0].legs[0].start_location.lng();
         fetchWeather(originLat, originLng);
-        displayEstimates();
       })
       .catch((e) => {
         alert("Could not display directions due to: " + e);
@@ -114,39 +139,65 @@ function initMap(start, end) {
     distance = distance * 0.000621371;
   }
 
-  let duration = 0;
+
+
 
   function computeTotalTime(result) {
+    let duration = 0;
+    const baselineHeight = 68;
+    const baselineWeight = 150;
+    const baselineAge = 40;
+
+    const heightWeight = 0.3;
+    const weightWeight = 0.4; 
+    const ageWeight = 0.3;  
+
+    const userHeight = JSON.parse(localStorage.getItem('riderData')).height;
+    const userWeight = JSON.parse(localStorage.getItem('riderData')).weight;
+    const userAge = JSON.parse(localStorage.getItem('riderData')).age;
+    const userFitness = JSON.parse(localStorage.getItem('riderData')).fitnessLevel;
+
+    const heightDeviation = (userHeight - baselineHeight) / baselineHeight;
+    const weightDeviation = (userWeight - baselineWeight) / baselineWeight;
+    const ageDeviation = (userAge - baselineAge) / baselineAge;
+
+    let heightFactor = 1 - Math.abs(heightDeviation) * heightWeight;
+    let weightFactor = 1 - Math.abs(weightDeviation) * weightWeight;
+    let ageFactor = 1 - Math.abs(ageDeviation) * ageWeight;
+
+    heightFactor = Math.max(heightFactor, 0.5);
+    weightFactor = Math.max(weightFactor, 0.5);
+    ageFactor = Math.max(ageFactor, 0.5);
+
+    let fitnessFactor = (heightFactor + weightFactor + ageFactor) / 3;
+
+    const fitnessLevelMultipliers = {
+      beginner: 0.8, 
+      average: 1.0,   
+      advanced: 1.2, 
+      elite: 1.5,     
+    };
+
+    const fitnessMultiplier = fitnessLevelMultipliers[userFitness.toLowerCase()] || 1.0; // Default to average
+    fitnessFactor = fitnessFactor * fitnessMultiplier;
+
+
     const myroute = result.routes[0];
-    const riderFitnessLevel = JSON.parse(localStorage.getItem('riderData'));
-    console.log(riderFitnessLevel.fitnessLevel);
-  
+    
     for (let i = 0; i < myroute.legs.length; i++) {
       duration += myroute.legs[i].duration.value;
     }
   
     duration = duration / 60 / 60;
-    
-    if ((riderFitnessLevel.fitnessLevel) == "beginner"){
-        duration = 1.2 * duration;
 
-    }
-    else if ((riderFitnessLevel.fitnessLevel) == "advanced"){
-        duration = .9 * duration;
+    let adjustedDuration = duration / fitnessFactor;
 
-    }
-    else if ((riderFitnessLevel.fitnessLevel) == "elite"){
-        duration = .5 * duration;
-
-    }
-  }
-  
-  function displayEstimates() {
     const estimatesElement = document.getElementById("estimates");
     estimatesElement.innerHTML = `
       <h3>Estimated Totals</h3>
-      <p>Duration: ${duration}</p>
-      <p>Distance: ${distance}</p>
+      <p>Distance: ${distance} miles</p>
+      <p>Duration: ${adjustedDuration} hours</p>
     `;
+ 
   }
   

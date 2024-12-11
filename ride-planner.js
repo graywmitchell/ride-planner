@@ -2,7 +2,6 @@ document.getElementById('rider').addEventListener('click', function(e) {
     e.preventDefault();
 
     const name = document.getElementById('name').value;
-    const pic = document.getElementById('pic').value;
     const age = document.getElementById('age').value;
     const feet = document.getElementById('feet').value;
     const inches = document.getElementById('inches').value;
@@ -11,7 +10,6 @@ document.getElementById('rider').addEventListener('click', function(e) {
     
     const height = (parseInt(inches) / 12) + parseInt(feet);
 
-    
     const riderData = {
         name: name,
         pic: pic,
@@ -24,6 +22,36 @@ document.getElementById('rider').addEventListener('click', function(e) {
     localStorage.setItem('riderData', JSON.stringify(riderData));
 });
 
+const WEATHER_API_KEY = "a008ca2308f1daa4dcacddfcfcc35fdb";
+
+function fetchWeather(lat, lng) {
+  const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lng}&units=metric&appid=${WEATHER_API_KEY}`;
+
+  fetch(weatherUrl)
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Weather API error: " + response.statusText);
+      }
+      return response.json();
+    })
+    .then((data) => {
+      displayWeather(data);
+    })
+    .catch((error) => {
+      console.error("Failed to fetch weather data:", error);
+    });
+}
+
+function displayWeather(data) {
+  const weatherElement = document.getElementById("weather");
+  weatherElement.innerHTML = `
+    <h3>Weather at Origin</h3>
+    <p>Temperature: ${data.main.temp}°C</p>
+    <p>Condition: ${data.weather[0].description}</p>
+    <p>Wind Speed: ${data.wind.speed} m/s</p>
+  `;
+}
+
 document.getElementById('route').addEventListener('click', function(e) {
     e.preventDefault();
 
@@ -32,6 +60,7 @@ document.getElementById('route').addEventListener('click', function(e) {
     initMap(start, end);
 
 });
+
 
 function initMap(start, end) {
     const map = new google.maps.Map(document.getElementById("map"));
@@ -61,62 +90,63 @@ function initMap(start, end) {
         display.setDirections(result);
         computeTotalDistance(result);
         computeTotalTime(result);
+
+        const originLat = result.routes[0].legs[0].start_location.lat();
+        const originLng = result.routes[0].legs[0].start_location.lng();
+        fetchWeather(originLat, originLng);
+        displayEstimates();
       })
       .catch((e) => {
         alert("Could not display directions due to: " + e);
       });
   }
   
+  let distance = 0;
+
   function computeTotalDistance(result) {
-    let total = 0;
+    
     const myroute = result.routes[0];
   
-    if (!myroute) {
-      return;
-    }
-  
     for (let i = 0; i < myroute.legs.length; i++) {
-      total += myroute.legs[i].distance.value;
+      distance += myroute.legs[i].distance.value;
     }
   
-    total = total * 0.000621371;
-    document.getElementById("total").innerHTML = total + " mi";
+    distance = distance * 0.000621371;
   }
 
+  let duration = 0;
+
   function computeTotalTime(result) {
-    let total = 0;
     const myroute = result.routes[0];
     const riderFitnessLevel = JSON.parse(localStorage.getItem('riderData'));
     console.log(riderFitnessLevel.fitnessLevel);
-    if (!myroute) {
-      return;
-    }
   
     for (let i = 0; i < myroute.legs.length; i++) {
-      total += myroute.legs[i].duration.value;
+      duration += myroute.legs[i].duration.value;
     }
   
-    total = total / 60 / 60;
+    duration = duration / 60 / 60;
+    
     if ((riderFitnessLevel.fitnessLevel) == "beginner"){
-        total = 1.2 * total;
-        document.getElementById("duration").innerHTML = total + " hours";
+        duration = 1.2 * duration;
 
     }
     else if ((riderFitnessLevel.fitnessLevel) == "advanced"){
-        total = .9 * total;
-        document.getElementById("duration").innerHTML = total + " hours";
+        duration = .9 * duration;
 
     }
     else if ((riderFitnessLevel.fitnessLevel) == "elite"){
-        total = .5 * total;
-        document.getElementById("duration").innerHTML = total + " hours";
-
-    }
-    else {
-        document.getElementById("duration").innerHTML = total + " hours";
+        duration = .5 * duration;
 
     }
   }
   
-
+  function displayEstimates() {
+    const estimatesElement = document.getElementById("estimates");
+    estimatesElement.innerHTML = `
+      <h3>Estimated Totals</h3>
+      <p>Duration: ${duration}</p>
+      <p>Distance: ${distance}</p>
+    `;
+  }
   

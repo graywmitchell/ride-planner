@@ -123,7 +123,7 @@ document.getElementById('rider').addEventListener('click', function(e) {
     
 });
 
-const WEATHER_API_KEY = "a008ca2308f1daa4dcacddfcfcc35fdb";
+const WEATHER_API_KEY = "";
 
 function fetchWeather(lat, lng) {
   const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lng}&units=metric&appid=${WEATHER_API_KEY}`;

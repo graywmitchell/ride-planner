@@ -1,5 +1,26 @@
 const profileSetup = document.getElementById("profileSetup");
 const scrim = document.getElementById("scrim");
+const errorMessage = document.getElementById("errorMessage");
+
+const userName = document.getElementById('name');
+const age = document.getElementById('age');
+const feet = document.getElementById('feet');
+const inches = document.getElementById('inches');
+const weight = document.getElementById('weight');
+const fitnessLevel = document.getElementById('fitnessLevel'); 
+
+const formInputs = [userName, age, feet, inches, weight, fitnessLevel];
+
+function requiredFields(formInputs) {
+  for (let i = 0; i < formInputs.length; i++) {
+    if (!formInputs[i].value) {
+      formInputs[i].classList.add("invalid");
+    }
+    else {
+      formInputs[i].classList.remove("invalid");
+    }
+    }
+}
 
 window.addEventListener("load", function () {
   if (localStorage.getItem('riderData')) {
@@ -28,47 +49,59 @@ window.addEventListener("load", function () {
   
 document.getElementById('rider').addEventListener('click', function(e) {
     e.preventDefault();
-
-    const name = document.getElementById('name').value;
-    const age = parseInt(document.getElementById('age').value);
-    const feet = document.getElementById('feet').value;
-    const inches = document.getElementById('inches').value;
-    const weight = parseInt(document.getElementById('weight').value);
-    const fitnessLevel = document.getElementById('fitnessLevel').value;
     
-    const height = parseInt(inches) + (parseInt(feet)*12);
+      if (!profileSetup.checkValidity()) {
+        e.preventDefault();
+        errorMessage.classList.remove("hidden");
+        requiredFields(formInputs);
+      }
 
-    const riderData = {
-        name: name,
-        age: age,
-        height: height,
-        weight: weight,
-        fitnessLevel: fitnessLevel
-    };
+      else {
+        requiredFields(formInputs);
+        errorMessage.classList.add("hidden");
 
-    localStorage.setItem('riderData', JSON.stringify(riderData));
+        const userNameVal = userName.value;
+        const ageVal = parseInt(age.value);
+        const feetVal = feet.value;
+        const inchesVal = inches.value;
+        const weightVal = parseInt(weight.value);
+        const fitnessLevelVal = fitnessLevel.value;
+        
+        const heightVal = parseInt(inchesVal) + (parseInt(feetVal)*12);
 
-    const profile = document.getElementById("profile");
-    profile.innerHTML = `
-      <h3>My Profile</h3>
-      <p>Name: ${riderData.name}</p>
-      <p>Age: ${riderData.age}</p>
-      <p>Height: ${riderData.height}</p>
-      <p>Weight: ${riderData.weight}</p>
-      <p>Fitness Level: ${riderData.fitnessLevel}</p>
-      <button id="edit">Edit Details</button>
-    `;
+        const riderData = {
+            name: userNameVal,
+            age: ageVal,
+            height: heightVal,
+            weight: weightVal,
+            fitnessLevel: fitnessLevelVal
+        };
 
+        localStorage.setItem('riderData', JSON.stringify(riderData));
+
+        const profile = document.getElementById("profile");
+        profile.innerHTML = `
+          <h3>My Profile</h3>
+          <p>Name: ${riderData.name}</p>
+          <p>Age: ${riderData.age}</p>
+          <p>Height: ${riderData.height}</p>
+          <p>Weight: ${riderData.weight}</p>
+          <p>Fitness Level: ${riderData.fitnessLevel}</p>
+          <button id="edit">Edit Details</button>
+        `;
+
+        
+        profileSetup.classList.toggle("hidden");
+        scrim.classList.toggle("hidden");
+
+        document.getElementById('edit').addEventListener('click', function(e) {
+          e.preventDefault();
+          profileSetup.classList.toggle("hidden");
+          scrim.classList.toggle("hidden");
+        });
+
+          }
     
-    profileSetup.classList.toggle("hidden");
-    scrim.classList.toggle("hidden");
-
-    document.getElementById('edit').addEventListener('click', function(e) {
-      e.preventDefault();
-      profileSetup.classList.toggle("hidden");
-      scrim.classList.toggle("hidden");
-    });
-
 });
 
 

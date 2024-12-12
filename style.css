@@ -26,3 +26,10 @@
   .hidden {
     display: none;
   }
+
+  .invalid {
+    border-color: red;
+}
+  .error {
+    color: red;
+  }

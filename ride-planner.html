@@ -8,7 +8,7 @@
 </head>
 <body>
     <div id="scrim" class="hidden"></div>
-    <div id="profileSetup" class="hidden">
+    <form id="profileSetup" class="hidden">
         <h2>My Info</h2>
         <div>
             <label for="name">Name</label>
@@ -17,6 +17,7 @@
                 class="form-control validate-input"
                 type="text"
                 name="name"
+                required
             />
         </div>
        
@@ -30,6 +31,7 @@
                     min="10"
                     max="100"
                     step="1"
+                    required
                 />
             <span>years</span>
         </div>
@@ -43,6 +45,7 @@
                     min="30"
                     max="200"
                     step="1"
+                    required
                 />
             <span>lbs</span>
         </div>
@@ -56,6 +59,7 @@
                     min="4"
                     max="7"
                     step="1"
+                    required
                 />
             <span>ft</span>
             <input
@@ -66,6 +70,7 @@
                     min="0"
                     max="11"
                     step="1"
+                    required
                 />
             <span>in</span>
         </div>
@@ -79,7 +84,8 @@
             </select>
         </div>
         <button id="rider">Submit</button>
-    </div>
+        <p id="errorMessage" class="error hidden">Sorry, the fields above are required</p>
+    </form>
     <div id="profile"></div>
 
 <h2>My Ride</h2>

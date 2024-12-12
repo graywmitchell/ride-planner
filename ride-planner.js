@@ -11,6 +11,12 @@ const fitnessLevel = document.getElementById('fitnessLevel');
 
 const formInputs = [userName, age, feet, inches, weight, fitnessLevel];
 
+let generated = false;
+let riderData = {};
+
+let duration = 0;
+let distance = 0;
+
 function requiredFields(formInputs) {
   for (let i = 0; i < formInputs.length; i++) {
     if (!formInputs[i].value) {
@@ -25,25 +31,35 @@ function requiredFields(formInputs) {
 window.addEventListener("load", function () {
   if (localStorage.getItem('riderData')) {
     const profile = document.getElementById("profile");
+    
+    riderData = {
+      name: JSON.parse(localStorage.getItem('riderData')).name,
+      age: JSON.parse(localStorage.getItem('riderData')).age,
+      feet: JSON.parse(localStorage.getItem('riderData')).feet,
+      inches: JSON.parse(localStorage.getItem('riderData')).inches,
+      weight: JSON.parse(localStorage.getItem('riderData')).weight,
+      fitnessLevel: JSON.parse(localStorage.getItem('riderData')).fitnessLevel
+    };
+    
     profile.innerHTML = `
       <h3>My Profile</h3>
-      <p>Name: ${JSON.parse(localStorage.getItem('riderData')).name}</p>
-      <p>Age: ${JSON.parse(localStorage.getItem('riderData')).age}</p>
-      <p>Height: ${JSON.parse(localStorage.getItem('riderData')).feet} feet ${JSON.parse(localStorage.getItem('riderData')).inches} inches</p>
-      <p>Weight: ${JSON.parse(localStorage.getItem('riderData')).weight}</p>
-      <p>Fitness Level: ${JSON.parse(localStorage.getItem('riderData')).fitnessLevel}</p>
+      <p>Name: ${riderData.name}</p>
+      <p>Age: ${riderData.age}</p>
+      <p>Height: ${riderData.feet} feet ${riderData.inches} inches</p>
+      <p>Weight: ${riderData.weight}</p>
+      <p>Fitness Level: ${riderData.fitnessLevel}</p>
       <button id="edit">Edit Details</button>
     `;
     document.getElementById('edit').addEventListener('click', function(e) {
       e.preventDefault();
       profileSetup.classList.toggle("hidden");
       scrim.classList.toggle("hidden");
-      userName.value = JSON.parse(localStorage.getItem('riderData')).name;
-      age.value = JSON.parse(localStorage.getItem('riderData')).age;
-      feet.value = JSON.parse(localStorage.getItem('riderData')).feet;
-      inches.value = JSON.parse(localStorage.getItem('riderData')).inches;
-      weight.value = JSON.parse(localStorage.getItem('riderData')).weight;
-      fitnessLevel.value = JSON.parse(localStorage.getItem('riderData')).fitnessLevel;
+      userName.value = riderData.name;
+      age.value = riderData.age;
+      feet.value = riderData.feet;
+      inches.value = riderData.inches;
+      weight.value = riderData.weight;
+      fitnessLevel.value = riderData.fitnessLevel;
       
     });
 
@@ -67,23 +83,18 @@ document.getElementById('rider').addEventListener('click', function(e) {
   else {
     requiredFields(formInputs);
     errorMessage.classList.add("hidden");
-    calcAdjustment(duration);
     
-    const userNameVal = userName.value;
-    const ageVal = parseInt(age.value);
-    const feetVal = feet.value;
-    const inchesVal = inches.value;
-    const weightVal = parseInt(weight.value);
-    const fitnessLevelVal = fitnessLevel.value;
 
-    const riderData = {
-      name: userNameVal,
-      age: ageVal,
-      feet: feetVal,
-      inches: inchesVal,
-      weight: weightVal,
-      fitnessLevel: fitnessLevelVal
+    riderData = {
+      name: userName.value,
+      age: parseInt(age.value),
+      feet: parseInt(feet.value),
+      inches: parseInt(inches.value),
+      weight: parseInt(weight.value),
+      fitnessLevel: fitnessLevel.value
     };
+
+    if (generated) {calcAdjustment(duration, riderData.feet, riderData.inches, riderData.weight, riderData.age, riderData.fitnessLevel)};
 
     localStorage.setItem('riderData', JSON.stringify(riderData));
 
@@ -180,7 +191,8 @@ function displayRoute(origin, destination, service, display) {
         display.setDirections(result);
         computeTotalDistance(result);
         computeTotalTime(result);
-        calcAdjustment(duration);
+        generated = true;
+        calcAdjustment(duration, riderData.feet, riderData.inches, riderData.weight, riderData.age, riderData.fitnessLevel);
 
         const originLat = result.routes[0].legs[0].start_location.lat();
         const originLng = result.routes[0].legs[0].start_location.lng();
@@ -190,8 +202,7 @@ function displayRoute(origin, destination, service, display) {
         alert("Could not display directions due to: " + e);
       });
 }
-  
-let distance = 0;
+
 
 function computeTotalDistance(result) {
   
@@ -204,7 +215,7 @@ function computeTotalDistance(result) {
   distance = distance * 0.000621371;
 }
 
-let duration = 0;
+
 
 function computeTotalTime(result) {
   const myroute = result.routes[0];
@@ -216,7 +227,9 @@ function computeTotalTime(result) {
   duration = duration / 60 / 60;
 }
 
-function calcAdjustment(duration) {
+function calcAdjustment(duration, feetVal, inchesVal, userWeight, ageVal, fitnessVal) {
+  console.log(duration, feetVal, inchesVal, userWeight, ageVal, fitnessVal)
+  
   const baselineHeight = 68;
   const baselineWeight = 150;
   const baselineAge = 40;
@@ -225,16 +238,12 @@ function calcAdjustment(duration) {
   const weightWeight = 0.4; 
   const ageWeight = 0.3;  
 
-  const feetVal = JSON.parse(localStorage.getItem('riderData')).feet;
-  const inchesVal = JSON.parse(localStorage.getItem('riderData')).inches;
+  
   const userHeight = parseInt(inchesVal) + (parseInt(feetVal)*12);
-  const userWeight = JSON.parse(localStorage.getItem('riderData')).weight;
-  const userAge = JSON.parse(localStorage.getItem('riderData')).age;
-  const userFitness = JSON.parse(localStorage.getItem('riderData')).fitnessLevel;
 
   const heightDeviation = (userHeight - baselineHeight) / baselineHeight;
   const weightDeviation = (userWeight - baselineWeight) / baselineWeight;
-  const ageDeviation = (userAge - baselineAge) / baselineAge;
+  const ageDeviation = (ageVal - baselineAge) / baselineAge;
 
   let heightFactor = 1 - Math.abs(heightDeviation) * heightWeight;
   let weightFactor = 1 - Math.abs(weightDeviation) * weightWeight;
@@ -253,7 +262,7 @@ function calcAdjustment(duration) {
     elite: 1.5,     
   };
 
-  const fitnessMultiplier = fitnessLevelMultipliers[userFitness.toLowerCase()] || 1.0; // Default to average
+  const fitnessMultiplier = fitnessLevelMultipliers[fitnessVal.toLowerCase()] || 1.0;
   fitnessFactor = fitnessFactor * fitnessMultiplier;
 
   let adjustedDuration = duration / fitnessFactor;

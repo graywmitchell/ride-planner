@@ -94,7 +94,8 @@ document.getElementById('rider').addEventListener('click', function(e) {
       fitnessLevel: fitnessLevel.value
     };
 
-    if (generated) {calcAdjustment(duration, riderData.feet, riderData.inches, riderData.weight, riderData.age, riderData.fitnessLevel)};
+    if (generated) {updateEstimate(duration, calcAdjustment(riderData.feet, riderData.inches, riderData.weight, riderData.age, riderData.fitnessLevel));
+    };
 
     localStorage.setItem('riderData', JSON.stringify(riderData));
 
@@ -192,7 +193,7 @@ function displayRoute(origin, destination, service, display) {
         computeTotalDistance(result);
         computeTotalTime(result);
         generated = true;
-        calcAdjustment(duration, riderData.feet, riderData.inches, riderData.weight, riderData.age, riderData.fitnessLevel);
+        updateEstimate(duration, calcAdjustment(riderData.feet, riderData.inches, riderData.weight, riderData.age, riderData.fitnessLevel));
 
         const originLat = result.routes[0].legs[0].start_location.lat();
         const originLng = result.routes[0].legs[0].start_location.lng();
@@ -227,8 +228,7 @@ function computeTotalTime(result) {
   duration = duration / 60 / 60;
 }
 
-function calcAdjustment(duration, feetVal, inchesVal, userWeight, ageVal, fitnessVal) {
-  console.log(duration, feetVal, inchesVal, userWeight, ageVal, fitnessVal)
+function calcAdjustment(feetVal, inchesVal, userWeight, ageVal, fitnessVal) {
   
   const baselineHeight = 68;
   const baselineWeight = 150;
@@ -265,6 +265,10 @@ function calcAdjustment(duration, feetVal, inchesVal, userWeight, ageVal, fitnes
   const fitnessMultiplier = fitnessLevelMultipliers[fitnessVal.toLowerCase()] || 1.0;
   fitnessFactor = fitnessFactor * fitnessMultiplier;
 
+  return fitnessFactor;
+}
+
+function updateEstimate(duration, fitnessFactor) {
   let adjustedDuration = duration / fitnessFactor;
 
   const estimatesElement = document.getElementById("estimates");
@@ -274,3 +278,4 @@ function calcAdjustment(duration, feetVal, inchesVal, userWeight, ageVal, fitnes
     <p>Duration: ${adjustedDuration.toFixed(2)} hours based on your fitness multiplier of ${fitnessFactor.toFixed(2)}</p>
   `;
 }
+
